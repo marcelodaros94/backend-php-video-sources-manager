@@ -18,6 +18,7 @@ class CreateLinksTable extends Migration
             $table->text('url');
             //$table->foreign('source_id')
                 //->references('id')->on('sources');
+            $table->unsignedBigInteger('video_id');            
             $table->foreign('video_id')
                 ->references('id')->on('videos');
             $table->timestamps();
