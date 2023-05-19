@@ -8,4 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Link extends Model
 {
     use HasFactory;
+
+    //one to many inverse
+    public function Video()
+    {
+        return $this->belongsTo(Video::class);
+    }
 }
