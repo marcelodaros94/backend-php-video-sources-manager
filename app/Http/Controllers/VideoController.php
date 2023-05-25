@@ -26,7 +26,18 @@ class VideoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $path=$request->file('image')->store('public/videos');
+        $video=new Video();
+        $video->title=$request->input('title');
+        $video->description=$request->input('description');
+        $video->type=$request->input('type');
+        $video->image=$path;
+        $video->rating=$request->input('rating');
+        $video->save();
+        return response()->json([
+            "id" => $video->id,
+            "message" => "Registro creado exitosamente"
+        ],201);
     }
 
     /**
