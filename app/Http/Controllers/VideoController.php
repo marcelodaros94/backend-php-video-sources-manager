@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
+use App\Models\Link;
 use App\Models\Video;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class VideoController extends Controller
 {
@@ -26,18 +29,38 @@ class VideoController extends Controller
      */
     public function store(Request $request)
     {
-        $path=$request->file('image')->store('public/videos');
-        $video=new Video();
-        $video->title=$request->input('title');
-        $video->description=$request->input('description');
-        $video->type=$request->input('type');
-        $video->image=$path;
-        $video->rating=$request->input('rating');
-        $video->save();
-        return response()->json([
-            "id" => $video->id,
-            "message" => "Registro creado exitosamente"
-        ],201);
+        try{
+            DB::beginTransaction();
+
+            $path=$request->file('image')->store('public/videos');
+            $video=new Video();
+            $video->title=$request->input('title');
+            $video->description=$request->input('description');
+            $video->type=$request->input('type');
+            $video->image=$path;
+            $video->rating=$request->input('rating');
+            $video->save();
+
+            $links=json_decode($request->input('links'),true);
+            foreach ($links as $item) {
+                $link=new Link();
+                $link->url=$item['url'];
+                $link->video_id=$video->id;
+                $link->save();
+            }
+            DB::commit();
+
+            return response()->json([
+                "id" => $video->id,
+                "message" => "Registro creado exitosamente"
+            ],201);
+        }
+        catch(Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
