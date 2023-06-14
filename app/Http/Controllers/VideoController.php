@@ -7,6 +7,7 @@ use App\Models\Link;
 use App\Models\Video;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class VideoController extends Controller
 {
@@ -17,7 +18,7 @@ class VideoController extends Controller
      */
     public function index()
     {
-        $videos=Video::all();
+        $videos=Video::with('links')->get();
         return $videos;
     }
 
@@ -37,7 +38,7 @@ class VideoController extends Controller
             $video->title=$request->input('title');
             $video->description=$request->input('description');
             $video->type=$request->input('type');
-            $video->image=$path;
+            $video->image=Storage::url($path);
             $video->rating=$request->input('rating');
             $video->save();
 
