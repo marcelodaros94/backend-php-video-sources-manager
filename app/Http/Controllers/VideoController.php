@@ -16,10 +16,22 @@ class VideoController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $videos=Video::with('links')->get();
-        return $videos;
+        $perPage=$request->input('perPage',3);
+        $page=$request->input('page')-1; // Sino nunca tomará los primeros 3
+        $videos=Video::with('links')
+        ->skip($page * $perPage)
+        ->take($perPage)
+        ->get();
+        
+        $totalPages = ceil(Video::with('links')->count() / $perPage);
+
+        return response()->json([
+            'videos' => $videos,
+            'currentPage' => $request->input('page'),
+            'totalPages' => $totalPages,
+        ]);
     }
 
     /**
