@@ -20,12 +20,21 @@ class VideoController extends Controller
     {
         $perPage=$request->input('perPage',3);
         $page=$request->input('page')-1; // Sino nunca tomará los primeros 3
-        $videos=Video::with('links')
-        ->skip($page * $perPage)
-        ->take($perPage)
-        ->get();
+        $searchTerm = $request->input('search');
+
+        //this query workes with or without search param
+        $query=Video::with('links')
+        ->when($searchTerm, function ($query) use ($searchTerm) {
+            return $query->where('title', 'like', '%' . $searchTerm . '%');
+        });
         
-        $totalPages = ceil(Video::with('links')->count() / $perPage);
+        //this applies the pagination
+        $videos = $query
+            ->skip($page * $perPage)
+            ->take($perPage)
+            ->get();
+        
+        $totalPages = ceil($query->count() / $perPage);
 
         return response()->json([
             'videos' => $videos,
