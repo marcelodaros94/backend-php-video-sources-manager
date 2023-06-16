@@ -33,14 +33,14 @@ class VideoController extends Controller
             });
         });
         
+        $totalPages = ceil($query->count() / $perPage);
+        
         //this applies the pagination
         $videos = $query
             ->skip($page * $perPage)
             ->take($perPage)
             ->get();
         
-        $totalPages = ceil($query->count() / $perPage);
-
         return response()->json([
             'videos' => $videos,
             'currentPage' => $request->input('page'),
