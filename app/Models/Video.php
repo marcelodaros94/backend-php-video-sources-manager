@@ -16,4 +16,10 @@ class Video extends Model
     {
         return $this->hasMany(Link::class);
     }
+
+    //one to one
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class);
+    }
 }

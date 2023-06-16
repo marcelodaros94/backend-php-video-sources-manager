@@ -22,10 +22,15 @@ class VideoController extends Controller
         $page=$request->input('page')-1; // Sino nunca tomará los primeros 3
         $searchTerm = $request->input('search');
 
-        //this query workes with or without search param
+        //this query works with or without search param
         $query=Video::with('links')
         ->when($searchTerm, function ($query) use ($searchTerm) {
-            return $query->where('title', 'like', '%' . $searchTerm . '%');
+            return $query
+            ->where('title', 'like', '%' . $searchTerm .'%')
+            //it searches in the brand table fields too
+            ->orWhereHas('brand', function ($query) use ($searchTerm) {
+                $query->where('name', 'like', '%'. $searchTerm. '%');
+            });
         });
         
         //this applies the pagination
@@ -61,6 +66,7 @@ class VideoController extends Controller
             $video->type=$request->input('type');
             $video->image=Storage::url($path);
             $video->rating=$request->input('rating');
+            $video->brand_id=$request->input('brand');
             $video->save();
 
             $links=json_decode($request->input('links'),true);
