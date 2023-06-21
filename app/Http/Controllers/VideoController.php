@@ -21,16 +21,17 @@ class VideoController extends Controller
         $perPage=$request->input('perPage',3);
         $page=$request->input('page')-1; // Sino nunca tomará los primeros 3
         $searchTerm = $request->input('search');
+        $rating=$request->input('rating',0);
 
         //this query works with or without search param
-        $query=Video::with('links')
-        ->when($searchTerm, function ($query) use ($searchTerm) {
-            return $query
-            ->where('title', 'like', '%' . $searchTerm .'%')
-            //it searches in the brand table fields too
-            ->orWhereHas('brand', function ($query) use ($searchTerm) {
-                $query->where('name', 'like', '%'. $searchTerm. '%');
-            });
+        $query = Video::with('links')
+        ->where('rating', '>=', $rating)
+        ->where(function ($query) use ($searchTerm) {
+            $query->where('title', 'like', '%' . $searchTerm .'%')
+                //it searches in the brand table fields too
+                ->orWhereHas('brand', function ($query) use ($searchTerm) {
+                    $query->where('name', 'like', '%'. $searchTerm. '%');
+                });
         });
         
         $totalPages = ceil($query->count() / $perPage);
