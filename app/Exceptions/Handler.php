@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Client\ConnectionException;
 use Throwable;
@@ -43,7 +44,7 @@ class Handler extends ExceptionHandler
     public function render($request, Throwable $exception)
     {
         // Verificar si la excepción es de tipo ConnectionException con el código de error 2002
-        if ($exception instanceof ConnectionException && $exception->getCode() === 2002) {
+        if ($exception instanceof QueryException && $exception->getCode() === 2002) {
             return response()->json(['error' => 'Error de conexión a la base de datos: No se encontró ninguna dirección asociada con el nombre de host'], 500);
         }
         return parent::render($request, $exception);
